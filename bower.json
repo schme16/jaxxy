@@ -1,0 +1,26 @@
+{
+  "name": "jaxxy",
+  "version": "0.1.0",
+  "homepage": "https://github.com/schme16/jaxxy",
+  "authors": [
+    "Shane Gadsby <schme16@gmail.com>"
+  ],
+  "description": "jaxxy is a cross browser AJAX GET/POST library with a similar api to jQuery, without the overhead",
+  "main": "dist/jaxxy.min.js",
+  "keywords": [
+    "ajax",
+    "jquery",
+    "get",
+    "post",
+    "api",
+    "alternative"
+  ],
+  "license": "GNU GPL v3.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

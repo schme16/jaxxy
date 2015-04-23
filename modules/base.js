@@ -19,7 +19,7 @@
 					if (this.readyState === 4) {
 						if (this.status >= 200 && this.status < 400) {
 							// Success!
-							if (typeof successCallback === "function") successCallback(this.responseText);
+							if (typeof successCallback === "function") successCallback(this.responseText, this);
 						}
 						else {
 							if (typeof errorCallback === "function") errorCallback(this);
