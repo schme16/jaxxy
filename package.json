@@ -1,0 +1,31 @@
+{
+  "name": "jaxxy",
+  "version": "1.0.0",
+  "description": "jaxxy is a cross browser AJAX GET/POST library with a similar api to jQuery, without the overhead",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/schme16/jaxxy.git"
+  },
+  "author": "Shane Gadsby <schme16@gmail.com>",
+  "license": "GNU GPL v3.0",
+  "bugs": {
+    "url": "https://github.com/schme16/jaxxy/issues"
+  },
+  "homepage": "https://github.com/schme16/jaxxy",
+  "devDependencies": {
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-concat": "^2.5.2",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0"
+  }
+}
