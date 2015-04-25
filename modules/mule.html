@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<!--The title-->
+	<title>jaxxy Mule</title>
+	<script src="jaxxy.min.js"></script>
+
+	<script>
+		
+		jaxxy.modules.events.on(window, "message", function (event) {
+			console.log('got to remote mule!')
+			if (event.data) {
+				var t = jaxxy.modules.jsonfn.parse(event.data);
+				if(!!t && !!t.func) {
+					t.func(t);
+				}
+
+			}
+		}, false);
+
+	</script>
+
+
+
+
+
+</head>
+
+
+<body>
+
+</body>
+</html>

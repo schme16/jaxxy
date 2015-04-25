@@ -27,5 +27,8 @@
     "gulp-load-plugins": "^0.10.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0"
+  },
+  "dependencies": {
+    "json-fn": "^0.60.0"
   }
 }
