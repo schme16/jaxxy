@@ -9,11 +9,11 @@
 			returnObj = {
 				then: function (a) {
 					if (typeof a === "function") successCallbacks.push(a);
-					return returnObj
+					return returnObj;
 				},
 				error: function (a) {
 					if (typeof a === "function") errorCallbacks.push(a);
-					return returnObj
+					return returnObj;
 				},
 			},
 			handleCallbacks = function (callbacks) {

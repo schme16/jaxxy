@@ -9,9 +9,11 @@
 			returnObj = {
 				then: function (a) {
 					if (typeof a === "function") successCallbacks.push(a);
+					return returnObj;
 				},
 				error: function (a) {
 					if (typeof a === "function") errorCallbacks.push(a);
+					return returnObj;
 				},
 			},
 			handleCallbacks = function (callbacks) {
@@ -22,9 +24,12 @@
 				}
 			};
 			returnObj.success = returnObj.then;
+			var formData = new FormData();
+			for (var i in data) {
+				formData.append(i, data[i]);
+			}
 
-
-			jaxxy.xhr("POST", url, data, async, handleCallbacks(successCallbacks), handleCallbacks(errorCallbacks))
+			jaxxy.modules.xhr("POST", url, formData, async, handleCallbacks(successCallbacks), handleCallbacks(errorCallbacks))
 
 
 		return returnObj;

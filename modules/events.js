@@ -3,25 +3,28 @@
 	"use strict";
 
 	if (typeof jaxxy === 'undefined' || !!jaxxy.modules.xhr) return false;
+	
 	var events  = {};
-	events.on = function (el, eventName, handler) {
+
+	events.on = function (el, eventName, handler, bubble) {
 		if (el.addEventListener) {
-			el.addEventListener(eventName, handler);
+			el.addEventListener(eventName, handler, bubble);
 		}
 		else {
 			el.attachEvent('on' + eventName, function() {
 				handler.call(el);
 			});
-		}
+		};
 	}
 
 	events.off = function (el, eventName, handler) {
 		if (el.removeEventListener) el.removeEventListener(eventName, handler);
 		else el.detachEvent('on' + eventName, handler);
-	}
+	};
 
 
 	jaxxy.modules.events = events;
+
 }(window));
 
 		

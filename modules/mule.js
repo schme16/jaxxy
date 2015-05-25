@@ -1,4 +1,3 @@
-var tttt
 /*Utilities for the cors avoiding mule*/
 (function (window) {
 	"use strict";
@@ -10,6 +9,7 @@ var tttt
 		getQueue:[],
 		messageQueue:{}
 	},
+
 	events = jaxxy.modules.events;
 
 	mule.randomTo = function (from, to) {
@@ -23,56 +23,98 @@ var tttt
 	mule.post = function(url, data, func) {
 		if(!mule.ready) {
 			mule.postQueue.push([url, data, func]);
-			return false;
+			return mule;
 		}
+
+
 		var id = mule.genID(),
-		payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, url:mule.server, data:data, func: function(prev) {
-
-			/*$.ajax({
-				type: "POST",
-				url: prev.url,
-				data: prev.data,
-				contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-				success: function (d) {
-					parent.postMessage(jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:d}), "*");
+			returnObj = {
+				then: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].success.push(a);
+					return returnObj;
 				},
-				error: function (e) {
-					if(console) console.log(JSON.stringify(e))
-					//alert('ERROR!')
+				error: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].error.push(a);
+					return returnObj;
+				},
+			},
+			handleCallbacks = function (callbacks) {
+				return function (a, b) {
+					for (var i = 0; i < callbacks.length; i++) {
+						callbacks[i](a, b);
+					}
 				}
-			})*/
-
-		}});
-
+			},
+			payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, url: url, data:data, func: function(prev) {
+				jaxxy.post(prev.url, prev.data, prev.async)
+					.success(function (d) {
+						parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:d}), "*");
+					})
+					.error(function (e) {
+						parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:false, error: e}), "*");
+						if(console) console.log(JSON.stringify(e))
+					});
+			}});
 		mule.element.contentWindow.postMessage(payload, "*");
-		mule.messageQueue[id] = function (e) { func(e); };
+		mule.messageQueue[id] = {success: [func], error: []};
+
+		returnObj.success = returnObj.then;
+
+
+
+
+
+
+		return returnObj
 	};
-			
-	mule.get = function(url, data, func) {
+
+	mule.get = function(url, func) {
 		if(!mule.ready) {
 			mule.getQueue.push([url, data, func]);
-			return false;
+			return mule;
 		}
 
 
 		var id = mule.genID(),
-		payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, url: url, data:data, func: function(prev) {
-
-			//console.log(222);
-
-			jaxxy.get(prev.url)
-				.success(function (d) {
-					parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:d}), "*");
-				})
-				.error(function (e) {
-					if(console) console.log(JSON.stringify(e))
-				});
-
-		}});
-
+			returnObj = {
+				then: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].success.push(a);
+					return returnObj;
+				},
+				error: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].error.push(a);
+					return returnObj;
+				},
+			},
+			handleCallbacks = function (callbacks) {
+				return function (a, b) {
+					for (var i = 0; i < callbacks.length; i++) {
+						callbacks[i](a, b);
+					}
+				}
+			},
+			payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, url: url, func: function(prev) {
+				jaxxy.get(prev.url, prev.async)
+					.success(function (d) {
+						parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:d}), "*");
+					})
+					.error(function (e) {
+						parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:false, error: e}), "*");
+						if(console) console.log(JSON.stringify(e))
+					});
+			}});
 		mule.element.contentWindow.postMessage(payload, "*");
-		mule.messageQueue[id] = func;
-	}
+		mule.messageQueue[id] = {success: [func], error: []};
+
+		returnObj.success = returnObj.then;
+
+
+
+
+
+
+		return returnObj
+	};
 
 	mule.init = function (muleServer, setGet, setPost) {
 		if (!muleServer) {
@@ -116,11 +158,25 @@ var tttt
 		if (event.data) {
 			try {
 				var k = jaxxy.modules.jsonfn.parse(event.data);
-				console.log(mule.messageQueue[k.id])
+				//console.log(mule.messageQueue[k.id])
 				if(!!k && !!mule.messageQueue[k.id] && !!k.id) {
-					mule.messageQueue[k.id](k);
+					if (!k.error) for (var i in mule.messageQueue[k.id].success) {
+						mule.messageQueue[k.id].success[i](k.data, k);
+					}
+					else for (var i in mule.messageQueue[k.id].error) {
+						mule.messageQueue[k.id].error[i](k.error, k);
+					}
+
 				}
-			} catch (e){ if (typeof console !== null && typeof console !== undefined) console.error(e.message)}
+			} catch (e) {
+				if (typeof console !== null && typeof console !== undefined) {
+					console.error(e.message)
+					for (var i in mule.messageQueue[k.id][i].error) {
+						mule.messageQueue[k.id].error[i](e, k);
+					}
+
+				}
+			}
 
 		}
 	}
