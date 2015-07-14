@@ -7,6 +7,10 @@
 		var successCallbacks = [],
 			errorCallbacks = [],
 			returnObj = {
+				success: function (a) {
+					if (typeof a === "function") successCallbacks.push(a);
+					return returnObj;
+				},
 				then: function (a) {
 					if (typeof a === "function") successCallbacks.push(a);
 					return returnObj;

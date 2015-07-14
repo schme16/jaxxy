@@ -1,0 +1,23 @@
+CACHE MANIFEST
+
+#version 1.2 5-22-2015
+
+CACHE:
+
+#images
+	https://lor.usq.edu.au/favicon.ico
+
+#internal HTML documents
+
+
+#style sheets
+
+
+#style sheet images
+
+
+#javascript files
+jaxxy.min.js
+
+NETWORK:
+*

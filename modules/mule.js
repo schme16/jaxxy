@@ -30,6 +30,10 @@
 		var id = mule.genID(),
 			returnObj = {
 				then: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].then.push(a);
+					return returnObj;
+				},
+				success: function (a) {
 					if (typeof a === "function") mule.messageQueue[id].success.push(a);
 					return returnObj;
 				},
@@ -38,6 +42,8 @@
 					return returnObj;
 				},
 			},
+
+
 			handleCallbacks = function (callbacks) {
 				return function (a, b) {
 					for (var i = 0; i < callbacks.length; i++) {
@@ -56,9 +62,9 @@
 					});
 			}});
 		mule.element.contentWindow.postMessage(payload, "*");
-		mule.messageQueue[id] = {success: [func], error: []};
+		mule.messageQueue[id] = {success: [], error: [], then: []};
+		returnObj.then(func);
 
-		returnObj.success = returnObj.then;
 
 
 
@@ -68,7 +74,7 @@
 		return returnObj
 	};
 
-	mule.get = function(url, func) {
+	mule.get = function(url, data, func) {
 		if(!mule.ready) {
 			mule.getQueue.push([url, data, func]);
 			return mule;
@@ -78,6 +84,10 @@
 		var id = mule.genID(),
 			returnObj = {
 				then: function (a) {
+					if (typeof a === "function") mule.messageQueue[id].then.push(a);
+					return returnObj;
+				},
+				success: function (a) {
 					if (typeof a === "function") mule.messageQueue[id].success.push(a);
 					return returnObj;
 				},
@@ -93,8 +103,8 @@
 					}
 				}
 			},
-			payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, url: url, func: function(prev) {
-				jaxxy.get(prev.url, prev.async)
+			payload = jaxxy.modules.jsonfn.stringify({id:id, parentID: mule.parentID, data: data, url: url, func: function(prev) {
+				jaxxy.get(prev.url, prev.data, prev.async)
 					.success(function (d) {
 						parent.postMessage(jaxxy.modules.jsonfn.stringify({parentID: prev.parentID, id:prev.id, data:d}), "*");
 					})
@@ -104,9 +114,9 @@
 					});
 			}});
 		mule.element.contentWindow.postMessage(payload, "*");
-		mule.messageQueue[id] = {success: [func], error: []};
+		mule.messageQueue[id] = {success: [], error: [], then: []};
+		returnObj.then(func)
 
-		returnObj.success = returnObj.then;
 
 
 
@@ -158,21 +168,25 @@
 		if (event.data) {
 			try {
 				var k = jaxxy.modules.jsonfn.parse(event.data);
-				//console.log(mule.messageQueue[k.id])
 				if(!!k && !!mule.messageQueue[k.id] && !!k.id) {
 					if (!k.error) for (var i in mule.messageQueue[k.id].success) {
-						mule.messageQueue[k.id].success[i](k.data, k);
+						(mule.messageQueue[k.id].success[i] || function () {})(k.data, k);
 					}
 					else for (var i in mule.messageQueue[k.id].error) {
-						mule.messageQueue[k.id].error[i](k.error, k);
+						(mule.messageQueue[k.id].error[i] || function () {})(k.error, k);
 					}
+					
+ 					for (var i in mule.messageQueue[k.id].then) {
+						(mule.messageQueue[k.id].then[i] || function () {})(k.error, k.data, k);
+					}
+
 
 				}
 			} catch (e) {
 				if (typeof console !== null && typeof console !== undefined) {
 					console.error(e.message)
 					for (var i in mule.messageQueue[k.id][i].error) {
-						mule.messageQueue[k.id].error[i](e, k);
+						(mule.messageQueue[k.id].error[i] || function () {})(e, k);
 					}
 
 				}
